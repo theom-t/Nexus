@@ -53,30 +53,30 @@ cp .env.example .env
 
 ---
 
-## 3. Linking to your AI CLI (Gemini CLI)
+### 3. Linking to your AI CLI (Gemini CLI)
 
 To use NEXUS as a "Skill" inside your terminal:
 
-1. **Create the Skill Folder:**
-   ```bash
-   mkdir -p ~/.gemini/skills/nexus/scripts
-   ```
-2. **Link the NEXUS files:**
-   ```bash
-   # Run this inside the Nexus/ directory you cloned
-   ln -s $(pwd)/* ~/.gemini/skills/nexus/scripts/
-   ```
-3. **Register the Skill:**
-   Copy the `NEXUS_SPEC.md` to the skill root so Gemini can "read" the instructions:
-   ```bash
-   cp NEXUS_SPEC.md ~/.gemini/skills/nexus/SKILL.md
-   ```
-4. **Reload Gemini:**
-   Open your Gemini CLI and type `/skills reload`. You should see `nexus` in the list.
+1. **Create the Skill Folder:** `mkdir -p ~/.gemini/skills/nexus/scripts`
+2. **Link the NEXUS files:** `ln -s $(pwd)/* ~/.gemini/skills/nexus/scripts/`
+3. **Register the Skill:** `cp SKILL.md ~/.gemini/skills/nexus/SKILL.md`
+4. **Reload:** Open Gemini CLI and type `/skills reload`.
 
 ---
 
-## 4. Hardware Agnostic Discovery
+## 4. Seamless AI Integration
+
+Once linked, you don't need to remember specific commands. You can interact with NEXUS using **Natural Language**:
+
+- **"Gemini, use NEXUS to boot my 'AgriBot' project."**
+- **"Hey Gemini, what's the NEXUS strategy for this app?"**
+- **"Run a NEXUS simulation on my current database schema."**
+- **"I need an ML Expert from NEXUS to review this CUDA kernel."**
+
+---
+
+## 5. Hardware Agnostic Discovery
+
 NEXUS automatically detects your local compute environment (RTX Desktop, Jetson Orin, or CPU).
 - **Desktop:** Uses `nvidia-smi` to optimize for VRAM and CUDA versions.
 - **Jetson:** Detects `tegrastats` to prioritize NVDLA and power efficiency.
