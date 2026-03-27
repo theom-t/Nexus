@@ -18,50 +18,86 @@ NEXUS acts as a **Dispatcher** that synchronizes five specialized engineering "d
 
 ---
 
-## 2. Key Features
+## 2. Step-by-Step Setup
 
-### 🧠 Autonomous Dispatcher
-NEXUS automatically analyzes your intent (ML, Business, UI, or Testing) and selects the appropriate persona, context tiers, and validation tools without manual intervention.
+### A. Clone the Repository
+NEXUS uses **Git Submodules**. You must use the `--recursive` flag to pull the integrated repositories.
+```bash
+git clone --recursive https://github.com/theom-t/Nexus.git
+cd Nexus
+```
 
-### 💾 Persistent Mental State
-Using a local SQLite database, NEXUS "remembers" your project's L0 Strategy across different terminal sessions and files.
+### B. Environment Setup (Isolated)
+We recommend using **Mamba** or **Conda** to keep your system clean.
+```bash
+# 1. Create the environment
+mamba create -n nexus python=3.12 -y
+mamba activate nexus
 
-### 🏎️ Hardware-Aware Engineering
-Optimized for high-performance hardware, including native support for identifying **RTX 5090 (Blackwell)** and **Jetson Orin Nano** optimization requirements.
+# 2. Install core dependencies
+mamba install sqlalchemy typer rich python-dotenv -y
 
----
+# 3. Install NVIDIA metrics library (Required for Hardware Discovery)
+pip install nvidia-ml-py
+```
 
-### 3. Setup & Skill Linking
+### C. Configuration (.env)
+NEXUS needs to know which LLMs to use.
+```bash
+# Copy the template
+cp .env.example .env
 
-NEXUS is designed to be a **Stateful Kernel** for your AI CLI (Gemini, Claude, or Agent-Zero).
-
-#### Linking to Gemini CLI
-1. **Create Skill Directory:** `mkdir -p ~/.gemini/skills/nexus/scripts`
-2. **Link NEXUS:** `ln -s $(pwd)/* ~/.gemini/skills/nexus/scripts/`
-3. **Initialize Skill:** Copy the `SKILL.md` (or your spec) to `~/.gemini/skills/nexus/SKILL.md`.
-4. **Reload:** Run `/skills reload` in your Gemini CLI.
-
----
-
-## 4. System Configuration
-
-### 🖥️ Hardware Agnostic Discovery
-NEXUS automatically detects your local compute environment.
-- **Auto-Detect:** The kernel queries `nvidia-smi` or `tegrastats` to identify your GPU (e.g., Blackwell, Ada, or Orin).
-- **Optimization Injection:** It automatically injects relevant hardware-specific constraints (e.g., CUDA vs. MPS vs. NVDLA) into the AI's system prompt.
-
-### 🌐 LLM & API Endpoints
-NEXUS supports both local and remote models. To configure your endpoints:
-1. Copy the template: `cp .env.example .env`
-2. Edit `.env` to set your providers:
-   - `NEXUS_LLM_PROVIDER`: `gemini`, `openai`, or `local` (Ollama/vLLM)
-   - `NEXUS_API_KEY`: Your provider key.
-   - `NEXUS_LOCAL_ENDPOINT`: `http://localhost:11434` (if using Ollama).
+# Open .env and add your API keys (Gemini, OpenAI, etc.)
+# If using local models (Ollama), ensure your local endpoint is set.
+```
 
 ---
 
-## 5. Usage
-Once linked, NEXUS acts as your autonomous engineering lead:
-- `nexus_chat "Task"`: Triggers autonomous orchestration.
-- `nexus_simulate "Decision"`: Predicts outcomes using MiroFish swarms.
+## 3. Linking to your AI CLI (Gemini CLI)
 
+To use NEXUS as a "Skill" inside your terminal:
+
+1. **Create the Skill Folder:**
+   ```bash
+   mkdir -p ~/.gemini/skills/nexus/scripts
+   ```
+2. **Link the NEXUS files:**
+   ```bash
+   # Run this inside the Nexus/ directory you cloned
+   ln -s $(pwd)/* ~/.gemini/skills/nexus/scripts/
+   ```
+3. **Register the Skill:**
+   Copy the `NEXUS_SPEC.md` to the skill root so Gemini can "read" the instructions:
+   ```bash
+   cp NEXUS_SPEC.md ~/.gemini/skills/nexus/SKILL.md
+   ```
+4. **Reload Gemini:**
+   Open your Gemini CLI and type `/skills reload`. You should see `nexus` in the list.
+
+---
+
+## 4. Hardware Agnostic Discovery
+NEXUS automatically detects your local compute environment (RTX Desktop, Jetson Orin, or CPU).
+- **Desktop:** Uses `nvidia-smi` to optimize for VRAM and CUDA versions.
+- **Jetson:** Detects `tegrastats` to prioritize NVDLA and power efficiency.
+- **Generic:** Falls back to standard CPU/OS-level optimizations.
+
+---
+
+## 5. First Steps (Try these!)
+
+1. **Boot a Project:**
+   ```bash
+   mamba run -n nexus python nexus.py boot "MyProject" --description "Build a SaaS."
+   ```
+2. **Autonomous Chat:**
+   In your Gemini CLI, ask: 
+   > *"Run a nexus_chat to design a React dashboard for my new project."*
+3. **Run a Simulation:**
+   In your Gemini CLI, ask:
+   > *"Run a nexus_simulation to see the impact of 1000 users on my current architecture."*
+
+---
+
+## 6. Attribution
+NEXUS is a synthesis of several incredible open-source projects. We thank the authors of OpenViking, Agency-Agents, MiroFish, Impeccable, and Promptfoo for their foundational work.
