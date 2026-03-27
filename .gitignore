@@ -1,0 +1,7 @@
+data/nexus.db
+logs/*.log
+__pycache__/
+*.pyc
+.env
+repos/promptfoo/node_modules
+

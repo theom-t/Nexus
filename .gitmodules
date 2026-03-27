@@ -1,0 +1,15 @@
+[submodule "repos/agency-agents"]
+	path = repos/agency-agents
+	url = https://github.com/msitarzewski/agency-agents.git
+[submodule "repos/OpenViking"]
+	path = repos/OpenViking
+	url = https://github.com/volcengine/OpenViking.git
+[submodule "repos/MiroFish"]
+	path = repos/MiroFish
+	url = https://github.com/666ghj/MiroFish.git
+[submodule "repos/impeccable"]
+	path = repos/impeccable
+	url = https://github.com/pbakaus/impeccable.git
+[submodule "repos/promptfoo"]
+	path = repos/promptfoo
+	url = https://github.com/promptfoo/promptfoo.git
