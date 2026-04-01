@@ -6,10 +6,13 @@ from core.drivers.promptfoo import PromptfooDriver
 from core.drivers.researcher import ResearcherDriver
 from core.drivers.profiler import HardwareProfiler
 from core.drivers.memory import VectorMemory
+from core.drivers.cleaner import CleanerDriver
+import json
 
 class NexusKernel:
     """
-    The Orchestrator that binds all 7 drivers together.
+    The Orchestrator that binds all 8 drivers together.
+    Upgraded to NEXUS V2 (Deep Agent Logic).
     """
     def __init__(self, project_name: str):
         self.project_name = project_name
@@ -21,99 +24,100 @@ class NexusKernel:
         self.researcher = ResearcherDriver()
         self.profiler = HardwareProfiler()
         self.memory = VectorMemory()
+        self.cleaner = CleanerDriver()
 
     def autonomous_dispatch(self, user_input: str) -> dict:
         """
-        Analyzes user input and automatically decides which tools, 
-        personas, and context are required.
+        NEXUS V2: Analyzes user input, performs TASK DECOMPOSITION, 
+        and decides on reasoning effort.
         """
+        # 1. Start with high-level intent
         plan = {
             "intent": "unknown",
             "persona": "engineering-senior-developer",
-            "tools": [],
-            "simulation_required": False,
-            "research_required": False,
-            "consensus_required": False,
+            "tasks": [],
+            "reasoning_effort": "medium",
+            "tools": ["OpenViking", "Promptfoo", "Cleaner"],
             "models": {
                 "leader": "Gemini 3 Pro (Cloud)", 
                 "architect": "deepseek-coder-v2:16b (Local)",
-                "swarm": "llama3.1:8b (Local)",
-                "researcher": "mistral-nemo (Local)"
+                "swarm": "llama3.1:8b (Local)"
             }
         }
 
-        # 1. Detect Intent & Persona (Refined Priority)
         input_lower = user_input.lower()
         
-        if any(word in input_lower for word in ["business", "strategy", "market", "profit", "monetize", "saas", "business idea"]):
+        # 2. Task Decomposition logic (V2)
+        if any(word in input_lower for word in ["business", "strategy", "market", "monetize"]):
             plan["intent"] = "business_strategy"
             plan["persona"] = "marketing-growth-hacker"
-            plan["research_required"] = True # Always research business
-            plan["consensus_required"] = True # High stakes
-        elif any(word in input_lower for word in ["ui", "frontend", "react", "css", "design", "html", "dashboard", "mvp", "app"]):
+            plan["reasoning_effort"] = "high"
+            plan["tasks"] = ["Market Research", "Financial Simulation", "ROI Logic Audit"]
+            plan["tools"].extend(["Researcher", "MiroFish"])
+        elif any(word in input_lower for word in ["ui", "frontend", "react", "css", "design"]):
             plan["intent"] = "ui_development"
             plan["persona"] = "engineering-frontend-developer"
-        elif any(word in input_lower for word in ["ml", "ai ", "machine learning", "gpu", "cuda", "rtx", "blackwell"]):
+            plan["tasks"] = ["Asset Selection", "OKLCH Styling", "Micro-interaction Design"]
+            plan["tools"].append("Impeccable")
+        elif any(word in input_lower for word in ["ml", "ai ", "gpu", "cuda", "blackwell"]):
             plan["intent"] = "machine_learning"
             plan["persona"] = "engineering-ai-engineer"
-            plan["consensus_required"] = True # Engineering needs double check
-        
-        # 2. Add Tools
-        plan["tools"].append("OpenViking")
-        plan["tools"].append("Promptfoo")
-        
-        if plan["research_required"]: plan["tools"].append("Researcher")
-        if plan.get("simulation_required") or "simulate" in input_lower:
-            plan["simulation_required"] = True
-            plan["tools"].append("MiroFish")
-        if plan["intent"] == "ui_development":
-            plan["tools"].append("Impeccable")
+            plan["reasoning_effort"] = "high"
+            plan["tasks"] = ["Hardware Profiling", "Kernel Optimization", "Memory Benchmarking"]
+            plan["tools"].append("Researcher")
 
         return plan
 
     def get_full_orchestration_prompt(self, user_input: str) -> str:
         """
-        Autonomously synthesizes the full system prompt based on user input.
+        NEXUS V2: Recursive Signal Filtering and Layered Context.
         """
+        # 1. WASH through Cleaner Driver (System Layer)
+        pre_cleaned_msg = self.cleaner.get_cleaning_system_prompt()
+        
+        # 2. Run Autonomous Dispatch (Task Layer)
         plan = self.autonomous_dispatch(user_input)
         
-        # 1. Load Persona
+        # 3. Load Persona & Hardware (Hardware Profile)
         persona_content = self.agency.format_as_system_prompt(plan["persona"])
+        hw_status = self.profiler.format_for_prompt()
         
-        # 2. Inject Context & Memory
+        # 4. Inject Hierarchical Context (Memory Layer)
         context_content = self.viking.format_for_prompt()
         past_memories = self.memory.recall(user_input)
         
-        # 3. Optional: Perform Live Research
-        research_data = ""
-        if plan["research_required"]:
-            research_data = self.researcher.search_and_scrape(user_input)
-            
-        # 4. Hardware Profiling
-        hw_status = self.profiler.format_for_prompt()
-        
-        # 5. Build Orchestration Header
-        orchestration_msg = f"--- NEXUS HYBRID ORCHESTRATION ---\n"
+        # 5. Build NEXUS V2 Header
+        orchestration_msg = f"--- NEXUS V2 DEEP ORCHESTRATION ---\n"
         orchestration_msg += f"INTENT: {plan['intent']}\n"
-        orchestration_msg += f"PERSONA: {plan['persona']}\n"
-        orchestration_msg += f"COUNCIL OF EXPERTS:\n"
-        orchestration_msg += f"  - LEADER: {plan['models']['leader']}\n"
-        orchestration_msg += f"  - ARCHITECT: {plan['models']['architect']}\n"
-        orchestration_msg += f"  - RESEARCHER: {plan['models']['researcher']}\n"
-        orchestration_msg += f"  - SWARM ENGINE: {plan['models']['swarm']}\n"
+        orchestration_msg += f"REASONING EFFORT: {plan['reasoning_effort'].upper()}\n"
+        orchestration_msg += f"TASK PLAN: {json.dumps(plan['tasks'])}\n"
+        orchestration_msg += f"COUNCIL OF EXPERTS: Leader({plan['models']['leader']}), Architect({plan['models']['architect']})\n"
+        orchestration_msg += "------------------------------------\n\n"
         
-        if plan["consensus_required"]:
-            orchestration_msg += "CONSENSUS MANDATE: The Local Architect and Cloud Leader must reach agreement.\n"
-        orchestration_msg += "----------------------------------\n\n"
+        # 6. Apply Internal Shadow Auditor (Validation Layer)
+        audit_mandate = (
+            "\n### INTERNAL AUDIT MANDATE ###\n"
+            "An internal Shadow Auditor persona is active. Before final output, "
+            "you MUST identify one potential 'failure point' in your logic and provide a self-correction."
+        )
         
-        full_prompt = f"{persona_content}\n\n{context_content}\n\n{past_memories}\n\n{research_data}\n\n{hw_status}\n\n{orchestration_msg}\n\nUSER REQUEST: {user_input}"
+        full_prompt = (
+            f"{pre_cleaned_msg}\n\n"
+            f"{persona_content}\n\n"
+            f"{orchestration_msg}\n\n"
+            f"{context_content}\n\n"
+            f"{past_memories}\n\n"
+            f"{hw_status}\n\n"
+            f"USER REQUEST: <user_request>{user_input}</user_request>\n\n"
+            f"{audit_mandate}"
+        )
         
-        # 6. Tool Guardrails
+        # Tool Guardrails
         if "Impeccable" in plan["tools"]: full_prompt += self.design.audit_prompt()
         full_prompt += self.validator.get_assertion_prompt(["Adhere to L0 Strategy", "Technical Feasibility Verified"])
         
-        # 7. Remember this task
-        self.memory.remember(self.project_name, user_input, {"type": "user_request"})
+        # Memory Compression (Mental State Update)
+        self.memory.remember(self.project_name, user_input, {"type": "v2_orchestration", "intent": plan["intent"]})
             
         return full_prompt
 

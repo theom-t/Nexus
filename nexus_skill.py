@@ -44,11 +44,19 @@ def nexus_boot(project_name: str, strategy: str = None, api_key: str = None, pro
 
 def nexus_chat(user_request: str, project_name: str = "NEXUS_CORE"):
     """
-    The core orchestration function. Generates a high-fidelity system prompt 
-    based on the user request, tiered context, and hardware profile.
+    The core NEXUS V2 orchestration function. Generates a high-fidelity 
+    system prompt with task decomposition and internal auditing.
     """
     kernel = NexusKernel(project_name)
     return kernel.get_full_orchestration_prompt(user_request)
+
+def nexus_clean_prompt(user_request: str):
+    """
+    The Signal Filter. Returns a 'washed' version of your prompt 
+    aligned with NEXUS Constitutional best practices.
+    """
+    kernel = _get_kernel()
+    return kernel.cleaner.get_cleaning_system_prompt() + f"\n\nRAW USER REQUEST: {user_request}"
 
 def nexus_auto(user_request: str):
     """
