@@ -42,6 +42,14 @@ def nexus_boot(project_name: str, strategy: str = None, api_key: str = None, pro
     msg += f"\n- Swarm Model: {swarm_model}"
     return msg
 
+def nexus_chat(user_request: str, project_name: str = "NEXUS_CORE"):
+    """
+    The core orchestration function. Generates a high-fidelity system prompt 
+    based on the user request, tiered context, and hardware profile.
+    """
+    kernel = NexusKernel(project_name)
+    return kernel.get_full_orchestration_prompt(user_request)
+
 def nexus_auto(user_request: str):
     """
     THE NATURAL LANGUAGE ENTRY POINT.
@@ -53,9 +61,11 @@ def nexus_auto(user_request: str):
         # Auto-generate a session name based on the request
         project_name = f"AUTO_{user_request[:10].replace(' ', '_')}"
         nexus_boot(project_name, strategy=user_request, provider="local", swarm_model="llama3.1:8b")
+    else:
+        project_name = _kernel.project_name
     
     # Run the autonomous chat loop
-    return nexus_chat(user_request)
+    return nexus_chat(user_request, project_name)
 
 def nexus_simulate(query: str):
     """
@@ -65,3 +75,9 @@ def nexus_simulate(query: str):
     # Auto-pick experts for simulation based on query
     plan = kernel.autonomous_dispatch(query)
     return kernel.run_pre_execution_simulation(query, [plan["persona"], "testing-reality-checker"])
+
+def nexus_simulation(query: str):
+    """
+    Alias for nexus_simulate as requested by README.md conventions.
+    """
+    return nexus_simulate(query)
